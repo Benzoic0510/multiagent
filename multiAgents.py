@@ -306,7 +306,53 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()
+    foodGrid = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    capsules = currentGameState.getCapsules()
+    legalActions = currentGameState.getLegalActions(0)
+
+    score = 1.2 * currentGameState.getScore()
+
+    foodList = foodGrid.asList()
+    if foodList:
+        closestFood = min([manhattanDistance(pacmanPos, food) for food in foodList])
+        score += 5.0 / closestFood
+        score -= 0.5 * closestFood
+    else:
+        score += 2.0
+
+    score -= 8.0 * len(foodList)
+    score -= 20.0 / (len(foodList) + 1)
+
+    if capsules:
+        closestCapsule = min([manhattanDistance(pacmanPos, capsule) for capsule in capsules])
+        score += 6.0 / closestCapsule
+    else:
+        score += 10.0
+
+    score -= 15.0 * len(capsules)
+
+    for ghost in ghostStates:
+        ghostPos = ghost.getPosition()
+        distance = manhattanDistance(pacmanPos, ghostPos)
+
+        if ghost.scaredTimer > 0:
+            score += 80.0 / distance
+            score += 25 - 1.0 * distance
+            score += 1.5 * len(legalActions)
+        else:
+            if distance < 2:
+                score -= 5.0
+            elif distance < 6:
+                score -= 1.0 / distance
+
+    if len(currentGameState.getLegalActions(0)) == 1:
+        score -= 5
+
+    score += 0.5 * len(legalActions)
+
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
