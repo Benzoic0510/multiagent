@@ -135,8 +135,63 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
+
+        """
+        返回当前 gameState 下的极小极大（minimax）动作，使用 self.depth 和 self.evaluationFunction。
+
+        以下是实现 minimax 时可能有用的一些方法调用：
+
+        gameState.getLegalActions(agentIndex):
+        返回某个 agent 的合法动作列表
+        agentIndex=0 表示吃豆人，鬼魂的索引 >= 1
+
+        gameState.generateSuccessor(agentIndex, action):
+        返回某个 agent 执行动作后的后继游戏状态
+
+        gameState.getNumAgents():
+        返回游戏中的 agent 总数
+
+        gameState.isWin():
+        返回当前游戏状态是否为胜利状态
+
+        gameState.isLose():
+        返回当前游戏状态是否为失败状态
+        """
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(agentIndex, depth, gameState):
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:
+                return self.evaluationFunction(gameState)
+
+            numAgents = gameState.getNumAgents()
+            if agentIndex == 0:
+                maxEval = float('-inf')
+                for action in gameState.getLegalActions(agentIndex):
+                    successor = gameState.generateSuccessor(agentIndex, action)
+                    eval = minimax(1, depth, successor)
+                    maxEval = max(maxEval, eval)
+                return maxEval
+            else:
+                nextAgent = agentIndex + 1
+                nextDepth = depth + 1 if nextAgent == numAgents else depth
+                nextAgent = 0 if nextAgent == numAgents else nextAgent
+                minEval = float('inf')
+                for action in gameState.getLegalActions(agentIndex):
+                    succ = gameState.generateSuccessor(agentIndex, action)
+                    eval = minimax(nextAgent, nextDepth, succ)
+                    minEval = min(minEval, eval)
+                return minEval
+
+        legalActions = gameState.getLegalActions(0)
+        bestScore = float('-inf')
+        bestAction = None
+        for action in legalActions:
+            succ = gameState.generateSuccessor(0, action)
+            score = minimax(1, 0, succ)
+            if score > bestScore:
+                bestScore = score
+                bestAction = action
+        return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
